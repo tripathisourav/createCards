@@ -8,9 +8,14 @@ const App = () => {
   const fetchNotes = () => {
 
     axios.get('https://createcards.onrender.com/api/notes')
-      .then((res) => {        
-        setNotes(res.data.notes)
-      })      
+      .then(res => {
+      console.log("API response:", res.data)
+      setNotes(res.data.notes || [])
+    })
+    .catch(err => {
+      console.error("Fetch failed:", err)
+      setNotes([])
+    })   
   }
 
 
@@ -25,6 +30,8 @@ const App = () => {
     }).then((res) => {
       console.log(res);
       fetchNotes()
+      console.log(notes);
+      
     })
 
 
@@ -36,11 +43,7 @@ const App = () => {
   function deleteHandler(id) {
 
     axios.delete(`https://createcards.onrender.com/api/notes/${id}`)
-      .then(res => {
-        console.log(res);
-      })
-
-    fetchNotes()
+      .then(() => fetchNotes())
   }
 
   function editHandler(id) {
@@ -103,7 +106,7 @@ const App = () => {
         </form>
       </div>
       <div className="notes">
-        {notes.map((elem, idx) => {
+        {notes?.map((elem, idx) => {
           return <div key={idx} className="note">
             <div className="content">
               <h4>{elem.title}</h4>
