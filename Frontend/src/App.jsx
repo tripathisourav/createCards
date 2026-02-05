@@ -7,7 +7,7 @@ const App = () => {
 
   const fetchNotes = () => {
 
-    axios.get('http://localhost:3000/api/notes')
+    axios.get('https://createcards.onrender.com//api/notes')
       .then((res) => {
         setNotes(res.data.notes)
       })
@@ -19,7 +19,7 @@ const App = () => {
 
     const { title, description } = e.target.elements;
 
-    axios.post('http://localhost:3000/api/notes', {
+    axios.post('https://createcards.onrender.com//api/notes', {
       title: title.value,
       description: description.value
     }).then((res) => {
@@ -35,7 +35,7 @@ const App = () => {
 
   function deleteHandler(id) {
 
-    axios.delete(`http://localhost:3000/api/notes/${id}`)
+    axios.delete(`https://createcards.onrender.com//api/notes/${id}`)
       .then(res => {
         console.log(res);
       })
@@ -64,7 +64,7 @@ const App = () => {
       let { editTitle, editDescription } = e.target.elements
       // console.log(editTitle, editDescription);
 
-      axios.patch(`http://localhost:3000/api/notes/${id}`, {
+      axios.patch(`https://createcards.onrender.com//api/notes/${id}`, {
         title: editTitle.value,
         description: editDescription.value
       })
