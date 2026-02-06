@@ -292,15 +292,13 @@ form h2{
 .modal{
   height: 100vh;
   width: 100%;
-
   backdrop-filter: blur(10px);
-
-  position: absolute;
+  position: fixed;   /* better than absolute */
   top: 0;
   left: 0;
-
-  display: none;
+  z-index: 999;
 }
+
 
 .edit form{
   position: absolute;

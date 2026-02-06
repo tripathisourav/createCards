@@ -5,44 +5,53 @@ const App = () => {
 
   const colors = [
     {
-      color1:'#e54050',
-      color2:'#fb6675'
+      color1: '#e54050',
+      color2: '#fb6675'
     },
     {
-      color1:'#E9573F',
-      color2:'#fd765b'
+      color1: '#E9573F',
+      color2: '#fd765b'
     },
     {
-      color1:'#fcb932',
-      color2:'#fdca49'
+      color1: '#fcb932',
+      color2: '#fdca49'
     },
     {
-      color1:'#8CC151',
-      color2:'#A0D468'
+      color1: '#8CC151',
+      color2: '#A0D468'
     },
     {
-      color1:'#36BC9B',
-      color2:'#48CFAD'
+      color1: '#36BC9B',
+      color2: '#48CFAD'
     },
     {
-      color1:'#3BAEDA',
-      color2:'#50C0E8'
+      color1: '#3BAEDA',
+      color2: '#50C0E8'
     },
     {
-      color1:'#4B89DC',
-      color2:'#5D9CEC'
+      color1: '#4B89DC',
+      color2: '#5D9CEC'
     },
     {
-      color1:'#967BDC',
-      color2:'#AC92ED'
+      color1: '#967BDC',
+      color2: '#AC92ED'
     },
     {
-      color1:'#D870AD',
-      color2:'#EC87BF'
+      color1: '#D870AD',
+      color2: '#EC87BF'
     }
   ]
 
   const [notes, setNotes] = useState([]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const [editData, setEditData] = useState({
+    title: '',
+    description: ''
+  });
+
+
 
   const fetchNotes = () => {
 
@@ -85,57 +94,44 @@ const App = () => {
       .then(() => fetchNotes())
   }
 
-  function editHandler(id) {
-    let modal = document.querySelector('.modal');
-    modal.style.display = 'block'
-
-    let back = document.querySelector('.back');
-    back.addEventListener('click', () => {
-      modal.style.display = 'none'
-    })
-
-    let edit = document.querySelector('.edit');
-    let form = edit.querySelector('form');
-
-
-    form.addEventListener('submit', (e) => {
-      e.preventDefault()
-      // console.log(e);
-
-
-      let { editTitle, editDescription } = e.target.elements
-      // console.log(editTitle, editDescription);
-
-      axios.patch(`https://createcards.onrender.com/api/notes/${id}`, {
-        title: editTitle.value,
-        description: editDescription.value
-      })
-        .then((res) => {
-          // console.log(res);
-
-          editTitle.value = '';
-          editDescription.value = '';
-
-          modal.style.display = 'none'
-          fetchNotes()
-        })
-
-    })
+  function editHandler(note) {
+    setEditId(note._id);
+    setEditData({
+      title: note.title,
+      description: note.description
+    });
+    setIsModalOpen(true);
   }
 
-  function createNote(){
+
+  function createNote() {
     let fm = document.querySelector('.fm');
 
     fm.style.position = 'relative';
     fm.style.left = '0'
   }
 
-  function removeNote(){
+  function removeNote() {
     let fm = document.querySelector('.fm');
 
     fm.style.position = 'absolute';
     fm.style.left = '-50%'
   }
+
+  function updateNote(e) {
+    e.preventDefault();
+
+    axios.patch(
+      `https://createcards.onrender.com/api/notes/${editId}`,
+      editData
+    ).then(() => {
+      fetchNotes();
+      setIsModalOpen(false);
+      setEditId(null);
+    });
+  }
+
+
 
   useEffect(() => {
     fetchNotes()
@@ -147,7 +143,7 @@ const App = () => {
     <div className="main">
       <i onClick={() => {
         createNote()
-      }} class="ri-add-large-fill make"></i>
+      }} className="ri-add-large-fill make"></i>
       <div className="fm">
         <form onSubmit={(e) => {
           submitHandler(e)
@@ -175,29 +171,55 @@ const App = () => {
                   deleteHandler(elem._id)
                 }}>delete <i class="ri-delete-bin-5-line"></i></button>
                 <button onClick={() => {
-                  editHandler(elem._id)
+                  editHandler(elem)
                 }}>edit <i class="ri-edit-2-line"></i></button>
               </div>
             </div>
-            <div className="num" style={{backgroundColor:`${colors[idx%8].color1}`}}>
-              <h5>{idx+1}</h5>
-              <div className="dn" style={{backgroundColor:`${colors[idx%8].color2}`}}></div>
+            <div className="num" style={{ backgroundColor: `${colors[idx % colors.length].color1}` }}>
+              <h5>{idx + 1}</h5>
+              <div className="dn" style={{ backgroundColor: `${colors[idx % colors.length].color2}` }}></div>
             </div>
           </div>
         })}
       </div>
-      <div className="modal">
-        <div className="edit">
-          
-          <form autocomplete="off">
-            <h2>Edit Note</h2>
-            <input type="text" name='editTitle' placeholder='title(required)' required />
-            <input type="text" name='editDescription' placeholder='description' autocomplete="new-password" />
-            <button>Save Changes</button>
-          </form>
+      {isModalOpen && (
+        <div className="modal">
+          <div className="edit">
+            <form onSubmit={updateNote} autoComplete="off">
+              <h2>Edit Note</h2>
+
+              <input
+                type="text"
+                value={editData.title}
+                onChange={e => setEditData({
+                  ...editData,
+                  title: e.target.value
+                })}
+                spellCheck={false}
+                required
+              />
+
+              <input
+                type="text"
+                value={editData.description}
+                onChange={e => setEditData({
+                  ...editData,
+                  description: e.target.value
+                })}
+                spellCheck={false}
+              />
+
+              <button>Save Changes</button>
+            </form>
+          </div>
+
+          <div
+            className="back"
+            onClick={() => setIsModalOpen(false)}
+          />
         </div>
-        <div className="back"></div>
-      </div>
+      )}
+
     </div>
   )
 }
